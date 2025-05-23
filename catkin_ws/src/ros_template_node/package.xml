@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ros_template_node</name>
+  <version>1.0.0</version>
+  <description>
+    A reusable ROS noetic template package that demonstrates basic subscriber and publisher functionality.
+    This template can be easily modified for various robotics projects requiring ROS node communication.
+  </description>
+
+  <!-- Maintainer contact information -->
+  <maintainer email="developer@example.com">ROS Template Developer</maintainer>
+
+  <!-- License for open source distribution -->
+  <license>MIT</license>
+
+  <!-- Author information -->
+  <author email="developer@example.com">ROS Template Developer</author>
+
+  <!-- Package URL for documentation -->
+  <url type="website">https://github.com/example/ros-noetic-template</url>
+  <url type="bugtracker">https://github.com/example/ros-noetic-template/issues</url>
+  <url type="repository">https://github.com/example/ros-noetic-template</url>
+
+  <!-- Build tool dependency -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Core ROS dependencies for build, export, and execution -->
+  <depend>roscpp</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+
+  <!-- Test dependencies -->
+  <test_depend>rostest</test_depend>
+  <test_depend>rosunit</test_depend>
+
+  <!-- Build dependencies for C++17 support -->
+  <build_depend>cmake</build_depend>
+
+  <!-- Export information -->
+  <export>
+    <!-- Specify that this package contains C++ headers -->
+    <cpp cppflags="-std=c++17"/>
+  </export>
+</package>

@@ -1,0 +1,146 @@
+version: '3.8'
+
+# ROS Noetic Template - Docker Compose Configuration
+# This compose file demonstrates how to run the ROS template node
+# in a multi-container setup with proper networking for ROS communication
+
+services:
+  # ROS Master (required for ROS 1 communication)
+  rosmaster:
+    image: ros:noetic-robot
+    container_name: ros_master
+    command: roscore
+    networks:
+      - ros_network
+    ports:
+      - "11311:11311"  # ROS Master port
+    environment:
+      - ROS_MASTER_URI=http://rosmaster:11311
+    restart: unless-stopped
+
+  # Main template node
+  template_node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ros_template_node
+    depends_on:
+      - rosmaster
+    networks:
+      - ros_network
+    environment:
+      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_HOSTNAME=template_node
+    command: >
+      bash -c "sleep 5 && 
+               roslaunch ros_template_node template_node.launch
+               node_name:=template_node
+               publish_rate:=2.0
+               status_rate:=0.5"
+    restart: unless-stopped
+    volumes:
+      # Mount logs directory for debugging
+      - ./logs:/catkin_ws/logs
+      # Optional: mount source code for development
+      # - ./catkin_ws/src:/catkin_ws/src
+
+  # Example subscriber node (demonstrates multi-node setup)
+  subscriber_example:
+    image: ros:noetic-robot
+    container_name: ros_subscriber_example
+    depends_on:
+      - rosmaster
+      - template_node
+    networks:
+      - ros_network
+    environment:
+      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_HOSTNAME=subscriber_example
+    command: >
+      bash -c "sleep 10 && 
+               rostopic echo /template_output"
+    restart: unless-stopped
+
+  # Example publisher node (provides input to template node)
+  publisher_example:
+    image: ros:noetic-robot
+    container_name: ros_publisher_example
+    depends_on:
+      - rosmaster
+    networks:
+      - ros_network
+    environment:
+      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_HOSTNAME=publisher_example
+    command: >
+      bash -c "sleep 8 && 
+               rostopic pub -r 0.5 /template_input std_msgs/String 
+               'data: \"Hello from publisher container!\"'"
+    restart: unless-stopped
+
+  # Optional: ROS monitoring and visualization
+  rqt_gui:
+    image: ros:noetic-desktop-full
+    container_name: ros_rqt_gui
+    depends_on:
+      - rosmaster
+    networks:
+      - ros_network
+    environment:
+      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_HOSTNAME=rqt_gui
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    command: rqt
+    profiles:
+      - gui  # Use with: docker-compose --profile gui up
+
+  # Optional: RViz for 3D visualization
+  rviz:
+    image: ros:noetic-desktop-full
+    container_name: ros_rviz
+    depends_on:
+      - rosmaster
+    networks:
+      - ros_network
+    environment:
+      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_HOSTNAME=rviz
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    command: rviz
+    profiles:
+      - gui  # Use with: docker-compose --profile gui up
+
+networks:
+  ros_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  logs:
+    driver: local
+
+# Usage Examples:
+# 
+# Start the basic ROS system:
+#   docker-compose up
+#
+# Start with GUI tools (requires X11 forwarding):
+#   docker-compose --profile gui up
+#
+# Start only specific services:
+#   docker-compose up rosmaster template_node
+#
+# View logs:
+#   docker-compose logs -f template_node
+#
+# Interactive shell in a container:
+#   docker-compose exec template_node bash
+#
+# Scale subscribers (create multiple instances):
+#   docker-compose up --scale subscriber_example=3

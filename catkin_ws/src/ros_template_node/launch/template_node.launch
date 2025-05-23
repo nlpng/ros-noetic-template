@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--
+  ROS Template Node Launch File
+  
+  This launch file demonstrates how to start the template node with
+  configurable parameters. It can be easily modified for different
+  use cases and serves as a starting point for more complex launch files.
+-->
+<launch>
+  <!-- Arguments for easy parameter configuration -->
+  <arg name="node_name" default="template_node" />
+  <arg name="publish_rate" default="1.0" />
+  <arg name="status_rate" default="0.2" />
+  <arg name="input_topic" default="/template_input" />
+  <arg name="output_topic" default="/template_output" />
+  <arg name="cmd_vel_topic" default="/cmd_vel" />
+  <arg name="laser_topic" default="/scan" />
+  <arg name="log_level" default="info" />
+
+  <!-- Template Node -->
+  <node name="$(arg node_name)" 
+        pkg="ros_template_node" 
+        type="template_node" 
+        output="screen"
+        launch-prefix=""
+        required="true">
+    
+    <!-- Node-specific parameters -->
+    <param name="publish_rate" value="$(arg publish_rate)" />
+    <param name="status_rate" value="$(arg status_rate)" />
+    <param name="input_topic" value="$(arg input_topic)" />
+    <param name="output_topic" value="$(arg output_topic)" />
+    <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
+    <param name="laser_topic" value="$(arg laser_topic)" />
+    
+    <!-- ROS logging level -->
+    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find ros_template_node)/config/rosconsole.conf" if="false"/>
+    
+    <!-- Remap topics if needed (examples) -->
+    <!-- <remap from="/template_input" to="/my_custom_input" /> -->
+    <!-- <remap from="/template_output" to="/my_custom_output" /> -->
+  </node>
+
+  <!-- Optional: Start rviz for visualization -->
+  <arg name="use_rviz" default="false" />
+  <node name="rviz" pkg="rviz" type="rviz" if="$(arg use_rviz)"
+        args="-d $(find ros_template_node)/config/template.rviz" />
+
+  <!-- Optional: Static transform publisher (example) -->
+  <arg name="use_static_tf" default="false" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_laser"
+        args="0 0 0.1 0 0 0 base_link laser_frame" if="$(arg use_static_tf)" />
+
+  <!-- Print launch information -->
+  <node name="launch_info" pkg="ros_template_node" type="template_node" output="log">
+    <param name="info_only" value="true" />
+  </node>
+
+</launch>
