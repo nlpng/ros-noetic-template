@@ -2,38 +2,25 @@ version: '3.8'
 
 # ROS Noetic Template - Docker Compose Configuration
 # This compose file demonstrates how to run the ROS template node
-# in a multi-container setup with proper networking for ROS communication
+# roslaunch automatically starts roscore, so no separate rosmaster service needed
 
 services:
-  # ROS Master (required for ROS 1 communication)
-  rosmaster:
-    image: ros:noetic-robot
-    container_name: ros_master
-    command: roscore
-    networks:
-      - ros_network
-    ports:
-      - "11311:11311"  # ROS Master port
-    environment:
-      - ROS_MASTER_URI=http://rosmaster:11311
-    restart: unless-stopped
-
-  # Main template node
+  # Main template node (roslaunch automatically starts roscore)
   template_node:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: ros_template_node
-    depends_on:
-      - rosmaster
     networks:
       - ros_network
+    ports:
+      - "11311:11311"  # ROS Master port
+      - "8765:8765"    # Foxglove bridge WebSocket port
     environment:
-      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_MASTER_URI=http://template_node:11311
       - ROS_HOSTNAME=template_node
     command: >
-      bash -c "sleep 5 && 
-               roslaunch ros_template_node template_node.launch
+      bash -c "roslaunch ros_template_node template_node.launch
                node_name:=template_node
                publish_rate:=2.0
                status_rate:=0.5"
@@ -49,15 +36,14 @@ services:
     image: ros:noetic-robot
     container_name: ros_subscriber_example
     depends_on:
-      - rosmaster
       - template_node
     networks:
       - ros_network
     environment:
-      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_MASTER_URI=http://template_node:11311
       - ROS_HOSTNAME=subscriber_example
     command: >
-      bash -c "sleep 10 && 
+      bash -c "sleep 5 && 
                rostopic echo /template_output"
     restart: unless-stopped
 
@@ -66,53 +52,34 @@ services:
     image: ros:noetic-robot
     container_name: ros_publisher_example
     depends_on:
-      - rosmaster
+      - template_node
     networks:
       - ros_network
     environment:
-      - ROS_MASTER_URI=http://rosmaster:11311
+      - ROS_MASTER_URI=http://template_node:11311
       - ROS_HOSTNAME=publisher_example
     command: >
-      bash -c "sleep 8 && 
+      bash -c "sleep 3 && 
                rostopic pub -r 0.5 /template_input std_msgs/String 
-               'data: \"Hello from publisher container!\"'"
+               'data: \"Hello from publisher container!\""
     restart: unless-stopped
 
-  # Optional: ROS monitoring and visualization
-  rqt_gui:
-    image: ros:noetic-desktop-full
-    container_name: ros_rqt_gui
+  # Optional: Foxglove Studio for modern web-based visualization
+  # Note: Foxglove bridge is already running in template_node container
+  # Access Foxglove Studio at: https://studio.foxglove.dev
+  # Connect to: ws://localhost:8765 (or your host IP)
+  foxglove_studio:
+    image: ghcr.io/foxglove/studio:latest
+    container_name: foxglove_studio
     depends_on:
-      - rosmaster
-    networks:
-      - ros_network
+      - template_node
+    ports:
+      - "8080:8080"  # Foxglove Studio web interface
     environment:
-      - ROS_MASTER_URI=http://rosmaster:11311
-      - ROS_HOSTNAME=rqt_gui
-      - DISPLAY=${DISPLAY}
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    command: rqt
+      - FOXGLOVE_WEBSOCKET_URL=ws://template_node:8765
     profiles:
-      - gui  # Use with: docker-compose --profile gui up
-
-  # Optional: RViz for 3D visualization
-  rviz:
-    image: ros:noetic-desktop-full
-    container_name: ros_rviz
-    depends_on:
-      - rosmaster
-    networks:
-      - ros_network
-    environment:
-      - ROS_MASTER_URI=http://rosmaster:11311
-      - ROS_HOSTNAME=rviz
-      - DISPLAY=${DISPLAY}
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    command: rviz
-    profiles:
-      - gui  # Use with: docker-compose --profile gui up
+      - studio  # Use with: docker-compose --profile studio up
+    restart: unless-stopped
 
 networks:
   ros_network:
@@ -127,14 +94,14 @@ volumes:
 
 # Usage Examples:
 # 
-# Start the basic ROS system:
+# Start the basic ROS system with Foxglove bridge:
 #   docker-compose up
 #
-# Start with GUI tools (requires X11 forwarding):
-#   docker-compose --profile gui up
+# Start with Foxglove Studio container:
+#   docker-compose --profile studio up
 #
 # Start only specific services:
-#   docker-compose up rosmaster template_node
+#   docker-compose up template_node publisher_example
 #
 # View logs:
 #   docker-compose logs -f template_node
@@ -144,3 +111,8 @@ volumes:
 #
 # Scale subscribers (create multiple instances):
 #   docker-compose up --scale subscriber_example=3
+#
+# Foxglove Visualization:
+# - Access web-based Foxglove Studio at: https://studio.foxglove.dev
+# - Connect to WebSocket: ws://localhost:8765
+# - Or use local Foxglove Studio container: http://localhost:8080

@@ -33,6 +33,8 @@ RUN apt-get update && apt-get install -y \
     # Network and communication tools
     net-tools \
     iputils-ping \
+    # Foxglove bridge for modern visualization
+    ros-noetic-foxglove-bridge \
     # Clean up to reduce image size
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean

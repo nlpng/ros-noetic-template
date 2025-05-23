@@ -16,6 +16,9 @@
   <arg name="cmd_vel_topic" default="/cmd_vel" />
   <arg name="laser_topic" default="/scan" />
   <arg name="log_level" default="info" />
+  <arg name="use_foxglove" default="true" />
+  <arg name="foxglove_port" default="8765" />
+  <arg name="foxglove_address" default="0.0.0.0" />
 
   <!-- Template Node -->
   <node name="$(arg node_name)" 
@@ -33,27 +36,29 @@
     <param name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
     <param name="laser_topic" value="$(arg laser_topic)" />
     
-    <!-- ROS logging level -->
-    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find ros_template_node)/config/rosconsole.conf" if="false"/>
-    
     <!-- Remap topics if needed (examples) -->
     <!-- <remap from="/template_input" to="/my_custom_input" /> -->
     <!-- <remap from="/template_output" to="/my_custom_output" /> -->
   </node>
 
-  <!-- Optional: Start rviz for visualization -->
-  <arg name="use_rviz" default="false" />
-  <node name="rviz" pkg="rviz" type="rviz" if="$(arg use_rviz)"
-        args="-d $(find ros_template_node)/config/template.rviz" />
+  <!-- Foxglove Bridge for modern web-based visualization -->
+  <node name="foxglove_bridge" 
+        pkg="foxglove_bridge" 
+        type="foxglove_bridge" 
+        output="screen"
+        if="$(arg use_foxglove)">
+    <param name="port" value="$(arg foxglove_port)" />
+    <param name="address" value="$(arg foxglove_address)" />
+    <param name="tls" value="false" />
+    <param name="certfile" value="" />
+    <param name="keyfile" value="" />
+    <param name="topic_whitelist" value=".*" />
+    <param name="send_buffer_limit" value="10000000" />
+  </node>
 
   <!-- Optional: Static transform publisher (example) -->
   <arg name="use_static_tf" default="false" />
   <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_laser"
         args="0 0 0.1 0 0 0 base_link laser_frame" if="$(arg use_static_tf)" />
-
-  <!-- Print launch information -->
-  <node name="launch_info" pkg="ros_template_node" type="template_node" output="log">
-    <param name="info_only" value="true" />
-  </node>
 
 </launch>

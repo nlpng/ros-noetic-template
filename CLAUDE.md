@@ -9,6 +9,7 @@ This is a ROS (Robot Operating System) 1 noetic package template designed to be 
 - **ROS Framework**: ROS 1 noetic with catkin build system
 - **Language**: C++17
 - **Containerization**: Docker with ros:noetic-robot base image
+- **Visualization**: Foxglove bridge for modern web-based data visualization
 - **Workspace Structure**: Standard catkin workspace (workspace_folder/src/package_name/)
 
 ## Development Commands
@@ -23,6 +24,19 @@ docker run --network host -it ros-noetic-template
 
 # Multi-container setup
 docker-compose up
+
+# Start with Foxglove Studio
+docker-compose --profile studio up
+```
+
+### Foxglove Visualization
+```bash
+# Access web-based Foxglove Studio
+# Open https://studio.foxglove.dev and connect to ws://localhost:8765
+
+# Run local Foxglove Studio container
+docker-compose --profile studio up
+# Access at http://localhost:8080
 ```
 
 ### ROS Package Development

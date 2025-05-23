@@ -10,6 +10,7 @@ A comprehensive, reusable ROS (Robot Operating System) 1 noetic package template
 - **Multi-Container Support**: Docker Compose configuration for complex deployments
 - **Comprehensive Communication**: Demonstrates publisher/subscriber patterns with multiple message types
 - **Timer-Based Operations**: Uses `ros::Timer` for periodic tasks (ROS best practice)
+- **Modern Visualization**: Integrated Foxglove bridge for web-based data visualization
 - **Configurable Parameters**: Runtime parameter configuration through launch files
 - **Production Ready**: Includes proper error handling, logging, and graceful shutdown
 
@@ -114,6 +115,41 @@ roslaunch ros_template_node template_node.launch \
 | `output_topic` | string | /template_output | Output topic name |
 | `cmd_vel_topic` | string | /cmd_vel | Velocity command topic |
 | `laser_topic` | string | /scan | Laser scan topic |
+| `use_foxglove` | bool | true | Enable Foxglove bridge |
+| `foxglove_port` | int | 8765 | Foxglove WebSocket port |
+| `foxglove_address` | string | 0.0.0.0 | Foxglove bind address |
+
+## 📊 Foxglove Visualization
+
+This template includes integrated [Foxglove](https://foxglove.dev/) support for modern, web-based data visualization.
+
+### Quick Start with Foxglove
+
+1. **Start the system**:
+   ```bash
+   docker-compose up
+   ```
+
+2. **Access Foxglove Studio**:
+   - Open [https://studio.foxglove.dev](https://studio.foxglove.dev) in your browser
+   - Click "Open connection"
+   - Select "WebSocket"
+   - Enter: `ws://localhost:8765`
+   - Click "Open"
+
+3. **Alternative - Local Foxglove Studio**:
+   ```bash
+   docker-compose --profile studio up
+   # Access at http://localhost:8080
+   ```
+
+### Foxglove Features
+
+- **Real-time Data Visualization**: View ROS topics in interactive plots and 3D scenes
+- **Web-based Interface**: No local installation required
+- **Multi-platform Support**: Works on any device with a web browser
+- **Advanced Plotting**: Time-series data, 3D visualizations, and custom panels
+- **Topic Inspection**: Browse and analyze ROS message data
 
 ## 🐳 Docker Usage
 
