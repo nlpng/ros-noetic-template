@@ -11,14 +11,10 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: ros_template_node
-    networks:
-      - ros_network
-    ports:
-      - "11311:11311"  # ROS Master port
-      - "8765:8765"    # Foxglove bridge WebSocket port
+    network_mode: host
     environment:
-      - ROS_MASTER_URI=http://template_node:11311
-      - ROS_HOSTNAME=template_node
+      - ROS_MASTER_URI=http://localhost:11311
+      - ROS_HOSTNAME=localhost
     command: >
       bash -c "roslaunch ros_template_node template_node.launch
                node_name:=template_node
@@ -31,30 +27,6 @@ services:
       # Optional: mount source code for development
       # - ./catkin_ws/src:/catkin_ws/src
 
-  # Optional: Foxglove Studio for modern web-based visualization
-  # Note: Foxglove bridge is already running in template_node container
-  # Access Foxglove Studio at: https://studio.foxglove.dev
-  # Connect to: ws://localhost:8765 (or your host IP)
-  foxglove_studio:
-    image: ghcr.io/foxglove/studio:latest
-    container_name: foxglove_studio
-    depends_on:
-      - template_node
-    ports:
-      - "8080:8080"  # Foxglove Studio web interface
-    environment:
-      - FOXGLOVE_WEBSOCKET_URL=ws://template_node:8765
-    profiles:
-      - studio  # Use with: docker-compose --profile studio up
-    restart: unless-stopped
-
-networks:
-  ros_network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
-
 volumes:
   logs:
     driver: local
@@ -63,9 +35,6 @@ volumes:
 # 
 # Start the ROS template node with Foxglove bridge:
 #   docker-compose up
-#
-# Start with local Foxglove Studio container:
-#   docker-compose --profile studio up
 #
 # View logs:
 #   docker-compose logs -f template_node
@@ -81,4 +50,3 @@ volumes:
 # Foxglove Visualization:
 # - Access web-based Foxglove Studio at: https://studio.foxglove.dev
 # - Connect to WebSocket: ws://localhost:8765
-# - Or use local Foxglove Studio container: http://localhost:8080
