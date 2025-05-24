@@ -115,9 +115,11 @@ roslaunch ros_template_node template_node.launch \
 | `output_topic` | string | /template_output | Output topic name |
 | `cmd_vel_topic` | string | /cmd_vel | Velocity command topic |
 | `laser_topic` | string | /scan | Laser scan topic |
-| `use_foxglove` | bool | true | Enable Foxglove bridge |
-| `foxglove_port` | int | 8765 | Foxglove WebSocket port |
-| `foxglove_address` | string | 0.0.0.0 | Foxglove bind address |
+| `use_foxglove` | bool | true | Enable Foxglove bridge* |
+| `foxglove_port` | int | 8765 | Foxglove WebSocket port* |
+| `foxglove_address` | string | 0.0.0.0 | Foxglove bind address* |
+
+*Note: Foxglove parameters are used by the foxglove_bridge node, not the template node itself.
 
 ## 📊 Foxglove Visualization
 
@@ -137,10 +139,10 @@ This template includes integrated [Foxglove](https://foxglove.dev/) support for 
    - Enter: `ws://localhost:8765`
    - Click "Open"
 
-3. **Alternative - Local Foxglove Studio**:
+3. **Alternative - Access via container**:
    ```bash
-   docker-compose --profile studio up
-   # Access at http://localhost:8080
+   # Connect from within the container network
+   docker-compose exec template_node rostopic list
    ```
 
 ### Foxglove Features
@@ -157,13 +159,13 @@ This template includes integrated [Foxglove](https://foxglove.dev/) support for 
 
 ```bash
 # Build the image
-docker build -t ros-noetic-template .
+docker build -t ros-template:noetic .
 
 # Run with ROS networking
-docker run --network host -it ros-noetic-template
+docker run --network host -it ros-template:noetic
 
 # Run with custom parameters
-docker run --network host -it ros-noetic-template \
+docker run --network host -it ros-template:noetic \
   roslaunch ros_template_node template_node.launch publish_rate:=5.0
 ```
 
@@ -173,15 +175,11 @@ docker run --network host -it ros-noetic-template \
 # Start complete system
 docker-compose up
 
-# Start with GUI tools (requires X11)
-xhost +local:docker  # Allow Docker to connect to X server
-docker-compose --profile gui up
-
-# Scale specific services
-docker-compose up --scale subscriber_example=3
-
 # Interactive debugging
 docker-compose exec template_node bash
+
+# View logs
+docker-compose logs -f template_node
 ```
 
 ## 🔧 Development
@@ -202,9 +200,10 @@ docker-compose exec template_node bash
    catkin build
    ```
 
-3. **Run tests**:
+3. **Run tests** (currently commented out in CMakeLists.txt):
    ```bash
-   catkin test ros_template_node
+   # Tests need to be uncommented and configured
+   # catkin test ros_template_node
    ```
 
 ### Customization
@@ -297,8 +296,11 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 🏷️ Version History
 
 - **v1.0.0**: Initial template with basic pub/sub functionality
-- Container support with Docker and Docker Compose
-- C++17 implementation with modern ROS patterns
+  - Container support with Docker and Docker Compose  
+  - C++17 implementation with modern ROS patterns
+  - Foxglove bridge integration for visualization
+  - Single container deployment with host networking
+  - Configurable launch parameters
 
 ---
 
