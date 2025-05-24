@@ -79,7 +79,9 @@ roslaunch <package_name> <launch_file.launch>
 - Add discovered sub-tasks to "Discovered During Work" section
 
 ## Critical Notes
+- Must read **PLANNING.md** before starting any implementation
 - This template is designed for general reuse across robotics projects
 - Focus on modularity and simplicity for easy modification
 - Always consider ROS message passing patterns and real-time constraints
 - Use docker-compose for complex multi-node setups
+- Always commit the changes with compact and concise messages

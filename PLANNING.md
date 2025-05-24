@@ -55,6 +55,7 @@ When implementing this project, make sure to:
 - Consider using docker-compose for complex multi-node setups
 - REMEMBER to rebuild Docker image when adding new dependencies
 - ALWAYS use --network host for ROS communication between containers
+- ALWAYS commit the changes with compact and concise messages
 
 When implementing this project, make sure **NOT** to:
  - DON'T install packages inside running containers (use Dockerfile)
