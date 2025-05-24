@@ -31,39 +31,6 @@ services:
       # Optional: mount source code for development
       # - ./catkin_ws/src:/catkin_ws/src
 
-  # Example subscriber node (demonstrates multi-node setup)
-  subscriber_example:
-    image: ros:noetic-robot
-    container_name: ros_subscriber_example
-    depends_on:
-      - template_node
-    networks:
-      - ros_network
-    environment:
-      - ROS_MASTER_URI=http://template_node:11311
-      - ROS_HOSTNAME=subscriber_example
-    command: >
-      bash -c "sleep 5 && 
-               rostopic echo /template_output"
-    restart: unless-stopped
-
-  # Example publisher node (provides input to template node)
-  publisher_example:
-    image: ros:noetic-robot
-    container_name: ros_publisher_example
-    depends_on:
-      - template_node
-    networks:
-      - ros_network
-    environment:
-      - ROS_MASTER_URI=http://template_node:11311
-      - ROS_HOSTNAME=publisher_example
-    command: >
-      bash -c "sleep 3 && 
-               rostopic pub -r 0.5 /template_input std_msgs/String 
-               'data: \"Hello from publisher container!\""
-    restart: unless-stopped
-
   # Optional: Foxglove Studio for modern web-based visualization
   # Note: Foxglove bridge is already running in template_node container
   # Access Foxglove Studio at: https://studio.foxglove.dev
@@ -94,23 +61,22 @@ volumes:
 
 # Usage Examples:
 # 
-# Start the basic ROS system with Foxglove bridge:
+# Start the ROS template node with Foxglove bridge:
 #   docker-compose up
 #
-# Start with Foxglove Studio container:
+# Start with local Foxglove Studio container:
 #   docker-compose --profile studio up
-#
-# Start only specific services:
-#   docker-compose up template_node publisher_example
 #
 # View logs:
 #   docker-compose logs -f template_node
 #
-# Interactive shell in a container:
+# Interactive shell in the container:
 #   docker-compose exec template_node bash
 #
-# Scale subscribers (create multiple instances):
-#   docker-compose up --scale subscriber_example=3
+# Test ROS communication manually:
+#   docker-compose exec template_node rostopic list
+#   docker-compose exec template_node rostopic echo /template_output
+#   docker-compose exec template_node rostopic pub -1 /template_input std_msgs/String "data: 'Test message'"
 #
 # Foxglove Visualization:
 # - Access web-based Foxglove Studio at: https://studio.foxglove.dev
