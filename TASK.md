@@ -27,6 +27,9 @@
 - [x] Update Dockerfile with foxglove_bridge package installation (2024-05-24)
 - [x] Configure WebSocket port exposure (8765) for Foxglove connectivity (2024-05-24)
 - [x] Update documentation with Foxglove usage instructions (2024-05-24)
+- [x] Simplify docker-compose by removing redundant example services (2024-05-24)
+- [x] Focus configuration on core template functionality only (2024-05-24)
+- [x] Add manual ROS testing commands to usage examples (2024-05-24)
 
 ## Completed Features
 The ROS noetic template now includes:
@@ -34,9 +37,10 @@ The ROS noetic template now includes:
 - ✅ C++17 ROS node with modern patterns (timers, proper RAII, etc.)
 - ✅ Publisher/Subscriber functionality for multiple message types
 - ✅ Docker containerization with ros:noetic-robot base
-- ✅ Optimized multi-container setup with docker-compose (no separate rosmaster)
+- ✅ Streamlined docker-compose with only essential services
 - ✅ Foxglove bridge integration for modern web-based visualization
 - ✅ Comprehensive documentation and usage examples
 - ✅ Configurable parameters through launch files
 - ✅ Production-ready error handling and logging
 - ✅ WebSocket connectivity for real-time data visualization
+- ✅ Simplified deployment focused on core template functionality
