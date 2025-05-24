@@ -8,6 +8,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: ros-template:noetic
+    pull_policy: never
     container_name: ros_template_node
     network_mode: host
     environment:
